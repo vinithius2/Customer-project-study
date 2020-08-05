@@ -30,6 +30,14 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+THIRD_PARTIES_APPS = [
+    'rest_framework',
+]
+
+LOCAL_APPS = [
+    'customers',
+]
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -37,7 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-]
+] + THIRD_PARTIES_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -118,3 +126,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# https://developers.google.com/maps/documentation/geolocation/overview
+API_KEY = os.getenv("API_KEY", "AIzaSyAawzW8idelSI7IQuQQovgbI_RRwCvSGCo")
+URL_GOOGLE_MAPS = "https://maps.googleapis.com/maps/api/geocode/json"
