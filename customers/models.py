@@ -14,10 +14,16 @@ from django.core.validators import EmailValidator
 # Project Imports
 
 
+def email_validation(value):
+    validator = EmailValidator()
+    validator(value)
+    return value
+
+
 class Customer(models.Model):
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50, null=True, blank=True)
-    email = models.CharField(max_length=50, validators=[EmailValidator])
+    email = models.CharField(max_length=50, validators=[email_validation])
     gender = models.CharField(max_length=1, choices=GENDERS)
     company = models.CharField(max_length=50)
     city = models.CharField(max_length=100)
@@ -26,6 +32,9 @@ class Customer(models.Model):
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
 
     def save(self, *args, **kwargs):
+        """
+        Looking for latitude and longitude before save model
+        """
         parm = parse.urlencode({"address": self.city})
         req = request.Request(
             f"{settings.URL_GOOGLE_MAPS}?{parm}&key={settings.API_KEY}")
