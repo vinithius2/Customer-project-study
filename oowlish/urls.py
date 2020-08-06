@@ -16,6 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import include
+from .yasg import urlpatterns as yasg_urls
+
 
 urls_api = [
     path('customer/', include(('customers.urls', 'customers'), namespace='customer')),
@@ -25,3 +27,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(urls_api)),
 ]
+urlpatterns += yasg_urls
