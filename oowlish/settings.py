@@ -32,6 +32,8 @@ ALLOWED_HOSTS = []
 
 THIRD_PARTIES_APPS = [
     'rest_framework',
+    'drf_yasg',
+    'django_filters'
 ]
 
 LOCAL_APPS = [
@@ -127,6 +129,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# ### DJANGO REST FRAMEWORK ###
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter',
+        'rest_framework.filters.SearchFilter'
+    ]
+}
 
 # https://developers.google.com/maps/documentation/geolocation/overview
 API_KEY = os.getenv("API_KEY", "AIzaSyAawzW8idelSI7IQuQQovgbI_RRwCvSGCo")

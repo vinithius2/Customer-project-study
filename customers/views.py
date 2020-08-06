@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from .models import Customer
-from .serialiazer import CustomerSerializer
+from .serializer import CustomerSerializer
 
 
 class CustomerViewSet(viewsets.ReadOnlyModelViewSet):
