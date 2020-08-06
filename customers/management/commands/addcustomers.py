@@ -7,6 +7,7 @@ import copy
 # Third Party Imports
 
 # Local Imports
+from customers.constants import GENDERS_DICT
 
 # Django Imports
 from django.conf import settings
@@ -18,7 +19,9 @@ from customers.models import Customer
 
 class Command(BaseCommand):
     """
-    https://docs.djangoproject.com/pt-br/3.0/howto/custom-management-commands/
+    Get a csv file and input in database after looking for latitude and
+    longitude in Google API with address available
+
     """
     help = 'Add customers with cvs file'
 
@@ -42,7 +45,7 @@ class Command(BaseCommand):
                             first_name=row[1],
                             last_name=row[2],
                             email=row[3],
-                            gender=row[4],
+                            gender=GENDERS_DICT[row[4]],
                             company=row[5],
                             city=row[6],
                             title=row[7]
@@ -63,7 +66,7 @@ class Command(BaseCommand):
                         if reader.line_num >= total:
                             self.stdout.write(self.style.WARNING(f'Get {reader.line_num} rows...'))
                             total += 25
-                    self.stdout.write(self.style.WARNING(f'Saving models...'))
+                    self.stdout.write(self.style.WARNING(f'Saving {len(customer_list)} models...'))
                     Customer.objects.bulk_create(customer_list)
             except FileNotFoundError as e:
                 self.stdout.write(self.style.ERROR('Do you need a valid file!'))
