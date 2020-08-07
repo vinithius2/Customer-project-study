@@ -18,11 +18,22 @@ customers live is made an insertion of the latitude and longitude in database wi
         model-bakery for test 
     * Ok, your project is ready!
 * Third:
-    * Run this project your computer
+    * Create your database:
+        * **Command:** python manage.py migrate
+        * Populet your database with a csv file:
+            * **Command:** python manage.py addcustomers <path_file>
+            * Exemple csv file with structure acceptable bellow:
+            
+|id		       |first_name	    |last_name		    |email			                |gender		   |company	      |city			            |title			        |
+|------------- |------------- 	|------------- 		|------------- 	                |------------- |------------- |------------- 	        |------------- 	        |
+|1	           |Laura	        |Richards	        |lrichards0@reverbnation.com	|Female		   |Meezzy		  |Warner, NH		        |Biostatistician III	|
+|2	           |Margaret        |Mendoza	        |mmendoza1@sina.com.cn		    |Female		   |Skipfire	  |East Natchitoches, PA	|VP Marketing		    |
+|3	           |Craig	        |Mccoy		        |cmccoy2@bluehost.com		    |Male		   |Quatz		  |Lyon, WV		            |Senior Sales Associate	|
+
+      
+   * Wait insertion with csv file ...
+   * Run this project your computer
         * **Command:** python manage.py runserver
-    * Populet your database with a csv file:
-        * **Command:** python manage.py addcustomers <path_file>
-        * Wait insertion with csv file ...
 * Fourth:
     * **Access:** http://localhost:8000/swagger/
     * Enjoy yourself...
