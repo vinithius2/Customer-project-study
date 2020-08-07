@@ -9,6 +9,6 @@ class CustomerViewSet(viewsets.ReadOnlyModelViewSet):
     """
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
-    filter_fields = ['first_name', 'last_name', 'city']
+    filter_fields = ['first_name', 'last_name', 'city', 'company']
     ordering = ['first_name']
     search_fields = ['first_name']
