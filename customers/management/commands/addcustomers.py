@@ -14,7 +14,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 # Project Imports
-from customers.models import Customer
+from customers.models import Customer, City
 
 
 class Command(BaseCommand):
@@ -41,27 +41,16 @@ class Command(BaseCommand):
                     customer_list = list()
                     total = 0
                     for row in reader:
+                        city, created = City.objects.get_or_create(name=row[6])
                         customer = Customer(
                             first_name=row[1],
                             last_name=row[2],
                             email=row[3],
                             gender=GENDERS_DICT[row[4]],
                             company=row[5],
-                            city=row[6],
+                            city=city,
                             title=row[7]
                         )
-                        parm = parse.urlencode({"address": customer.city})
-                        req = request.Request(
-                            f"{settings.URL_GOOGLE_MAPS}?{parm}&key={settings.API_KEY}")
-                        response = request.urlopen(req)
-                        if response.status == 200:
-                            result = json.load(response)
-                            customer.latitude = result["results"][0]["geometry"]["location"]["lat"]
-                            customer.longitude = result["results"][0]["geometry"]["location"]["lng"]
-                        else:
-                            self.stdout.write(
-                                self.style.ERROR('Error looking for lat and lng of "%s"'
-                                                 % customer.city))
                         customer_list.append(customer)
                         if reader.line_num >= total:
                             self.stdout.write(self.style.WARNING(f'Get {reader.line_num} rows...'))
