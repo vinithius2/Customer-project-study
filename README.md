@@ -20,7 +20,7 @@ customers live is made an insertion of the latitude and longitude in database wi
 * Third:
     * Create your database:
         * **Command:** python manage.py migrate
-        * Populet your database with a csv file:
+        * Populate your database with a csv file:
             * **Command:** python manage.py addcustomers <path_file>
             * Exemple csv file with structure acceptable bellow:
             
