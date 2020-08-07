@@ -1,16 +1,10 @@
 # Python Imports
-from urllib import request, parse
-import json
 import csv
-import copy
-
-# Third Party Imports
 
 # Local Imports
 from customers.constants import GENDERS_DICT
 
 # Django Imports
-from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 # Project Imports

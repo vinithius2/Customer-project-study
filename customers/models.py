@@ -3,7 +3,7 @@ from urllib import request, parse
 import json
 
 # Local Imports
-from .constants import GENDERS
+from customers.constants import GENDERS
 
 # Django Imports
 from django.conf import settings
