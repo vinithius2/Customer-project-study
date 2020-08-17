@@ -141,5 +141,5 @@ REST_FRAMEWORK = {
 }
 
 # https://developers.google.com/maps/documentation/geolocation/overview
-API_KEY = os.getenv("API_KEY", "AIzaSyAawzW8idelSI7IQuQQovgbI_RRwCvSGCo")
+API_KEY = os.getenv("API_KEY")
 URL_GOOGLE_MAPS = "https://maps.googleapis.com/maps/api/geocode/json"
