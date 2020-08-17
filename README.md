@@ -1,6 +1,4 @@
 #### Description:
-Project test for hiring developer python with django for Oowlish company.
-
 In this project is possible to get a customers list or only a customer, with the name city your 
 customers live is made an insertion of the latitude and longitude in database with Google API.
 
