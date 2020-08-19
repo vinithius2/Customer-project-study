@@ -13,9 +13,7 @@ from customers.models import Customer, City
 
 class Command(BaseCommand):
     """
-    Get a csv file and input in database after looking for latitude and
-    longitude in Google API with address available
-
+    Get a csv file and input in database
     """
     help = 'Add customers with cvs file'
 
@@ -26,37 +24,32 @@ class Command(BaseCommand):
         self.stdout.write(self.style.WARNING('Please wait...'))
         for path in options['path']:
             try:
-                with open(path, 'r', newline='') as csvfile:
-                    has_header = csv.Sniffer().has_header(csvfile.read(1024))
-                    csvfile.seek(0)
-                    reader = csv.reader(csvfile)
-                    if has_header:
-                        next(reader)
-                    customer_list = list()
-                    total = 0
-                    for row in reader:
-                        city, created = City.objects.get_or_create(name=row[6])
-                        customer = Customer(
-                            first_name=row[1],
-                            last_name=row[2],
-                            email=row[3],
-                            gender=GENDERS_DICT[row[4]],
-                            company=row[5],
-                            city=city,
-                            title=row[7]
-                        )
-                        customer_list.append(customer)
-                        if reader.line_num >= total:
-                            self.stdout.write(self.style.WARNING(f'Get {reader.line_num} rows...'))
-                            total += 25
-                    self.stdout.write(self.style.WARNING(f'Saving {len(customer_list)} models...'))
-                    Customer.objects.bulk_create(customer_list)
-            except FileNotFoundError as e:
+                customer_list = self.get_list_customer(path)
+                Customer.objects.bulk_create(customer_list)
+            except FileNotFoundError as error:
                 self.stdout.write(self.style.ERROR('Do you need a valid file!'))
-                raise CommandError(e)
-            except TimeoutError as e:
-                self.stdout.write(self.style.ERROR("API Google maps don't work!"))
-                raise CommandError(e)
-            except Exception as e:
-                raise CommandError(e)
+                raise CommandError(f"FileNotFoundError: {error}")
+            except TypeError as error:
+                raise CommandError(f"TypeError: {error}")
+            except Exception as error:
+                raise CommandError(f"Exception: {error}")
             self.stdout.write(self.style.SUCCESS('Successfully!'))
+
+    def get_list_customer(self, path):
+        with open(path, 'r', newline='') as csvfile:
+            customer_list = list()
+            total = 0
+            count = 0
+            for row in csv.DictReader(csvfile, skipinitialspace=True):
+                city, created = City.objects.get_or_create(name=row["city"])
+                row["id"] = int(row["id"])
+                row["city"] = city
+                row["gender"] = GENDERS_DICT[row["gender"]]
+                customer_list.append(Customer(dict(row)))
+                count = count + 1
+                if count >= 25:
+                    total = total + count
+                    count = 0
+                    self.stdout.write(self.style.WARNING(f'Get {total} rows...'))
+            self.stdout.write(self.style.WARNING(f'Saving {len(customer_list)} models...'))
+            return customer_list
