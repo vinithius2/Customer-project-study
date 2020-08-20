@@ -5,17 +5,17 @@ import csv
 from customers.constants import GENDERS_DICT
 
 # Django Imports
-from django.core.management.base import BaseCommand, CommandError
-
+from django.core.management.base import BaseCommand
+from django.core.management.base import CommandError
+from django.db.utils import IntegrityError
 # Project Imports
-from customers.models import Customer, City
+from customers.models import Customer
+from customers.models import City
 
 
 class Command(BaseCommand):
     """
-    Get a csv file and input in database after looking for latitude and
-    longitude in Google API with address available
-
+    Get a csv file and input in database
     """
     help = 'Add customers with cvs file'
 
@@ -26,37 +26,31 @@ class Command(BaseCommand):
         self.stdout.write(self.style.WARNING('Please wait...'))
         for path in options['path']:
             try:
-                with open(path, 'r', newline='') as csvfile:
-                    has_header = csv.Sniffer().has_header(csvfile.read(1024))
-                    csvfile.seek(0)
-                    reader = csv.reader(csvfile)
-                    if has_header:
-                        next(reader)
-                    customer_list = list()
-                    total = 0
-                    for row in reader:
-                        city, created = City.objects.get_or_create(name=row[6])
-                        customer = Customer(
-                            first_name=row[1],
-                            last_name=row[2],
-                            email=row[3],
-                            gender=GENDERS_DICT[row[4]],
-                            company=row[5],
-                            city=city,
-                            title=row[7]
-                        )
-                        customer_list.append(customer)
-                        if reader.line_num >= total:
-                            self.stdout.write(self.style.WARNING(f'Get {reader.line_num} rows...'))
-                            total += 25
-                    self.stdout.write(self.style.WARNING(f'Saving {len(customer_list)} models...'))
-                    Customer.objects.bulk_create(customer_list)
-            except FileNotFoundError as e:
+                customer_list = self.get_list_customer(path)
+                Customer.objects.bulk_create(customer_list)
+            except FileNotFoundError as error:
                 self.stdout.write(self.style.ERROR('Do you need a valid file!'))
-                raise CommandError(e)
-            except TimeoutError as e:
-                self.stdout.write(self.style.ERROR("API Google maps don't work!"))
-                raise CommandError(e)
-            except Exception as e:
-                raise CommandError(e)
+                raise CommandError(f"FileNotFoundError: {error}")
+            except IntegrityError as error:
+                self.stdout.write(self.style.ERROR(
+                    'Your csv file exist a row with ID existing in database!'))
+                raise CommandError(f"IntegrityError: {error}")
             self.stdout.write(self.style.SUCCESS('Successfully!'))
+
+    def get_list_customer(self, path):
+        with open(path, 'r', newline='') as csvfile:
+            customer_list = list()
+            total = 0
+            count = 0
+            for row in csv.DictReader(csvfile, skipinitialspace=True):
+                city, created = City.objects.get_or_create(name=row["city"])
+                row["city"] = city
+                row["gender"] = GENDERS_DICT[row["gender"]]
+                customer_list.append(Customer(**row))
+                count = count + 1
+                if count >= 25:
+                    total = total + count
+                    count = 0
+                    self.stdout.write(self.style.WARNING(f'Get {total} rows...'))
+            self.stdout.write(self.style.WARNING(f'Saving {len(customer_list)} models...'))
+            return customer_list
