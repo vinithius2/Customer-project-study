@@ -1,5 +1,6 @@
 # Python Imports
-from urllib import request, parse
+from urllib import parse
+from urllib import request
 import json
 
 # Local Imports
@@ -8,6 +9,7 @@ from customers.constants import GENDERS
 # Django Imports
 from django.conf import settings
 from django.db import models
+from django.core.exceptions import PermissionDenied
 from django.core.management.base import CommandError
 
 
@@ -28,10 +30,14 @@ class City(models.Model):
             response = request.urlopen(req)
             if response.status == 200:
                 result = json.load(response)
+                if 'REQUEST_DENIED' == result['status']:
+                    raise PermissionDenied(result['error_message'])
                 self.latitude = result["results"][0]["geometry"]["location"]["lat"]
                 self.longitude = result["results"][0]["geometry"]["location"]["lng"]
         except TimeoutError as error:
             raise CommandError(f"TimeoutError: {error}")
+        except PermissionDenied as error:
+            raise CommandError(f"PermissionDenied: {error}")
         super().save(*args, **kwargs)
 
     def __str__(self):

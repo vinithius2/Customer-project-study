@@ -5,10 +5,12 @@ import csv
 from customers.constants import GENDERS_DICT
 
 # Django Imports
-from django.core.management.base import BaseCommand, CommandError
-
+from django.core.management.base import BaseCommand
+from django.core.management.base import CommandError
+from django.db.utils import IntegrityError
 # Project Imports
-from customers.models import Customer, City
+from customers.models import Customer
+from customers.models import City
 
 
 class Command(BaseCommand):
@@ -29,10 +31,10 @@ class Command(BaseCommand):
             except FileNotFoundError as error:
                 self.stdout.write(self.style.ERROR('Do you need a valid file!'))
                 raise CommandError(f"FileNotFoundError: {error}")
-            except TypeError as error:
-                raise CommandError(f"TypeError: {error}")
-            except Exception as error:
-                raise CommandError(f"Exception: {error}")
+            except IntegrityError as error:
+                self.stdout.write(self.style.ERROR(
+                    'Your csv file exist a row with ID existing in database!'))
+                raise CommandError(f"IntegrityError: {error}")
             self.stdout.write(self.style.SUCCESS('Successfully!'))
 
     def get_list_customer(self, path):
@@ -42,10 +44,9 @@ class Command(BaseCommand):
             count = 0
             for row in csv.DictReader(csvfile, skipinitialspace=True):
                 city, created = City.objects.get_or_create(name=row["city"])
-                row["id"] = int(row["id"])
                 row["city"] = city
                 row["gender"] = GENDERS_DICT[row["gender"]]
-                customer_list.append(Customer(dict(row)))
+                customer_list.append(Customer(**row))
                 count = count + 1
                 if count >= 25:
                     total = total + count
